@@ -28,8 +28,8 @@ class MASKimg:
             indices_masked_y = indices[0][self.__mask[self.__extension].data.astype('bool')]
             indices_masked_x = indices[1][self.__mask[self.__extension].data.astype('bool')]
         else:
-            indices_masked_y = indices[0][self.__mask[self.__extension].data.astype('bool') & (nan_mask==False)]
-            indices_masked_x = indices[1][self.__mask[self.__extension].data.astype('bool') & (nan_mask==False)]
+            indices_masked_y = indices[0][(self.__mask[self.__extension].data.astype('bool')) & (nan_mask==False)]
+            indices_masked_x = indices[1][(self.__mask[self.__extension].data.astype('bool')) & (nan_mask==False)]
         return indices_masked_y,indices_masked_x
 
 class WAVEmask:
@@ -76,7 +76,7 @@ class IFUCube:
         self.__hdu.writeto(fileout,overwrite=True)
 
     def getNANMask(self,min_slice=5, max_slice=20):
-        self.__badmask = self.__hdu[self.extension].data[min_slice:max_slice, :, :]
+        self.__badmask = numpy.isnan(self.__hdu[self.extension].data[min_slice:max_slice, :, :],0)
 
     def getWave(self):
         try:
