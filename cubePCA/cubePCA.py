@@ -148,7 +148,7 @@ class IFUCube:
             print(i)
             #pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]),callback=callback_spec)
             out = process(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i])
-            print out
+            print(out)
         #for x in range(self.__dim[2]):
         #    for y in range(self.__dim[1]):
         #        spec = self.__hdu[self.extension].data[:,y,x]
