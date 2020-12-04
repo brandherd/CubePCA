@@ -93,7 +93,7 @@ class IFUCube:
         except KeyError:
             cdelt = self.__header['CDELT3']
         wave = (numpy.arange(self.__dim[0])-(crpix-1))*cdelt+crval
-        print wave
+        print(wave)
         return wave
 
 
