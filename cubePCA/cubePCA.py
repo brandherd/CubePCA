@@ -93,6 +93,7 @@ class IFUCube:
         except KeyError:
             cdelt = self.__header['CDELT3']
         wave = (numpy.arange(self.__dim[0])-(crpix-1))*cdelt+crval
+        print wave
         return wave
 
 
@@ -128,13 +129,12 @@ class IFUCube:
             for y in range(self.__dim[1]):
                 spec = self.__hdu[self.extension].data[:,y,x]
                 nan = numpy.isnan(spec)
-                if numpy.sum(nan) < self.__dim[0]:
-                    spec[nan] = 0
-                    select = select_wave & (nan==False)
-                    smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
-                    out=numpy.linalg.lstsq(pca_specs[:,select].T,(spec-smooth_spec)[select])
-                    spec_sky = numpy.dot(pca_specs[:, select].T, out[0])
-                    self.__hdu[self.extension].data[select,y,x] = spec[select]-spec_sky
+                spec[nan] = 0
+                select = select_wave
+                smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
+                out=numpy.linalg.lstsq(pca_specs[:,select].T,(spec-smooth_spec)[select])
+                spec_sky = numpy.dot(pca_specs[:, select].T, out[0])
+                self.__hdu[self.extension].data[select,y,x] = spec[select]-spec_sky
                 m +=1
                 if (m%100==0 or m== max_it-1) and verbose:
                     show_progress_bar(bar_length, m, max_it)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from cubePCA import cubePCA
+import cubePCA
 from astropy.io import fits as pyfits
 
 
