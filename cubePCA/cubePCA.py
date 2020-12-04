@@ -141,7 +141,7 @@ class IFUCube:
         x_cor = x.flatten()
         y_cor = y.flatten()
         for i in range(len(y_cor)):
-            pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave),callback=callback_spec)
+            pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]),callback=callback_spec)
         #for x in range(self.__dim[2]):
         #    for y in range(self.__dim[1]):
         #        spec = self.__hdu[self.extension].data[:,y,x]
