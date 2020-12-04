@@ -30,7 +30,7 @@ def main():
         print('Creating PCA spectral libary. This may take a while... ')
     PCA_out,sky = cube.create_PCA_sky(mask, cont_filt=args.filter_width, spectra=args.spectra)
     hdu = pyfits.PrimaryHDU(PCA_out)
-    hdu.writeto(args.PCA_out, overwrite=True)
+    hdu.writeto('test.fits', overwrite=True)
 
     if args.verbose:
         print('Start subtracting sky line residuals.')
