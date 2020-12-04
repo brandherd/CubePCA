@@ -9,7 +9,7 @@ def main():
     parser.add_argument('input_cube', metavar='CUBE_IN', type=str,  help='Input FITS datacube from which sky spectra are selected')
     parser.add_argument('output_cube', metavar='CUBE_OUT', type=str, help='Output FITS datacube with sky residuals subtracted')
     parser.add_argument('sky_mask', metavar='MASK', type=str, help='sky region mask')
-    parser.add_argument('-m', '--wave_mask', type=string, default='',help='File name of the wavelength selection for the PCA subtraction. If not given a default wavelength set is being used. An example is given in the wave.txt file.')
+    parser.add_argument('-m', '--wave_mask', type=str, default='',help='File name of the wavelength selection for the PCA subtraction. If not given a default wavelength set is being used. An example is given in the wave.txt file.')
     parser.add_argument('-e', '--extension', type=int, default=1, help='extension in which the data should be taken from')
     parser.add_argument('-c', '--components', type=int, default=100, help='Number of PCA components to be used')
     parser.add_argument('-s', '--spectra', type=int, default=20000, help='Maximum random subset of spectra used for PCA analysis if number of selected spectra are larger than this number')

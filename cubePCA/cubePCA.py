@@ -33,7 +33,7 @@ class MASKimg:
         return indices_masked_y,indices_masked_x
 
 class WAVEmask:
-    def__init__(self, filename=''):
+    def __init__(self, filename=''):
         if filename!='':
             file_in = open(filename,'r')
             lines = file_in.readlines()
