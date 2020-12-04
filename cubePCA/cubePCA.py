@@ -137,7 +137,7 @@ class IFUCube:
             self.__hdu[self.extension].data[select_wave,y,x] = spec
 
         pool = Pool(max_cpu)
-        (y,x) = numpy.indicies((self.__dim[1:]))
+        (y,x) = numpy.indices((self.__dim[1:]))
         x_cor = x.flatten()
         y_cor = y.flatten()
         for i in range(len(y_cor)):
