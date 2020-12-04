@@ -2,7 +2,7 @@ from astropy.io import fits as pyfits
 import math
 import numpy
 from scipy import ndimage
-
+from multiprocessing import Pool
 
 def show_progress_bar(bar_length, completed, total):
     bar_length_unit_value = (total / bar_length)
@@ -115,8 +115,8 @@ class IFUCube:
 
         return PCA_out,sky
 
-    def subtract_PCA_sky(self, PCA_sky, cont_filt=50, components=100, file_wavemask='', verbose=True):
-        pca_specs = PCA_sky[:components, :] * 10000.0
+    def subtract_PCA_sky(self, PCA_sky, cont_filt=50, components=100, file_wavemask='', max_cpu=10, verbose=True):
+        pca_specs = PCA_sky[:components, :]
         wave_mask = WAVEmask(file_wavemask)
         self.replaceNAN()
         select_wave = wave_mask.mask(self.getWave())
@@ -124,14 +124,34 @@ class IFUCube:
 
         bar_length = 30
         m=0
-        for x in range(self.__dim[2]):
-            for y in range(self.__dim[1]):
-                spec = self.__hdu[self.extension].data[:,y,x]
-                smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
-                out=numpy.linalg.lstsq(pca_specs[:,select_wave].T,(spec-smooth_spec)[select_wave])
-                spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
-                self.__hdu[self.extension].data[select_wave,y,x] = spec[select_wave]-spec_sky
-                m +=1
-                if (m%100==0 or m== max_it-1) and verbose:
-                    show_progress_bar(bar_length, m, max_it)
+
+        def process(spec,pca_specs,cont_filt,select_wave,x,y):
+            smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
+            out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave])
+            spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
+            out_spec = spec[select_wave] - spec_sky
+            return out_spec, x, y
+
+        def callback_spec(result):
+            (spec,x,y) = result
+            self.__hdu[self.extension].data[select_wave,y,x] = spec
+
+        pool = Pool(max_cpu)
+        (y,x) = numpy.indicies((self.__dim[1:]))
+        x_cor = x.flatten()
+        y_cor = y.flatten()
+        for i in range(len(y_cor)):
+            pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave),callback=callback_spec)
+        #for x in range(self.__dim[2]):
+        #    for y in range(self.__dim[1]):
+        #        spec = self.__hdu[self.extension].data[:,y,x]
+        #        smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
+        #        out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave])
+        #        spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
+        #        self.__hdu[self.extension].data[select_wave,y,x] = spec[select_wave]-spec_sky
+        #        m +=1
+        #        if (m%100==0 or m== max_it-1) and verbose:
+        #            show_progress_bar(bar_length, m, max_it)
+        pool.close()
+        pool.join()
         print('\n')
