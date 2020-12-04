@@ -2,7 +2,7 @@
 
 import argparse
 import cubePCA
-
+from astropy.io import fits as pyfits
 
 def main():
     parser = argparse.ArgumentParser(description="Script to subtract sky residuals from a datacube by creating a PCA spectral library")
@@ -29,6 +29,8 @@ def main():
     if args.verbose:
         print('Creating PCA spectral libary. This may take a while... ')
     PCA_out,sky = cube.create_PCA_sky(mask, cont_filt=args.filter_width, spectra=args.spectra)
+    hdu = pyfits.PrimaryHDU(PCA_out)
+    hdu.writeto(args.PCA_out, overwrite=True)
 
     if args.verbose:
         print('Start subtracting sky line residuals.')
