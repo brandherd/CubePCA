@@ -11,7 +11,7 @@ setuptools.setup(
     description="A small example package",
     url="https://github.com/pypa/sampleproject",
     packages = setuptools.find_packages(),
-    scripts=['bin/subtractPCAsky'],
+    scripts=['bin/subtractPCAsky.py','bin/createPCAsky.py','bin/applyPCAsky.py'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
