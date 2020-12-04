@@ -114,7 +114,7 @@ class IFUCube:
         pca_specs = PCA_sky[:components, :] * 10000.0
         wave_mask = WAVEmask(file_wavemask)
 
-        select_wave = wave_mask(self.getWave())
+        select_wave = wave_mask.mask(self.getWave())
         max_it = self.__dim[2]*self.__dim[1]
 
         bar_length = 30
