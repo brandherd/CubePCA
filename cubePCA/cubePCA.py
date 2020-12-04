@@ -132,16 +132,19 @@ class IFUCube:
             out_spec = spec[select_wave] - spec_sky
             return out_spec, x, y
 
-        def callback_spec(result):
+        def callback_spec(self,result):
             (spec,x,y) = result
+            print(x,y)
             self.__hdu[self.extension].data[select_wave,y,x] = spec
 
         pool = Pool(max_cpu)
         (y,x) = numpy.indices((self.__dim[1:]))
         x_cor = x.flatten()
         y_cor = y.flatten()
+        results = []
         for i in range(len(y_cor)):
-            pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]),callback=callback_spec)
+            result = pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]),callback=callback_spec)
+            results.append(result)
         #for x in range(self.__dim[2]):
         #    for y in range(self.__dim[1]):
         #        spec = self.__hdu[self.extension].data[:,y,x]
@@ -154,4 +157,4 @@ class IFUCube:
         #            show_progress_bar(bar_length, m, max_it)
         pool.close()
         pool.join()
-        print('\n')
+        #print('\n')
