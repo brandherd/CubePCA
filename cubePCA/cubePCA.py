@@ -130,6 +130,7 @@ class IFUCube:
             out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave])
             spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
             out_spec = spec[select_wave] - spec_sky
+            print (x,y)
             return out_spec, x, y
 
         def callback_spec(self,result):
@@ -137,12 +138,14 @@ class IFUCube:
             print(x,y)
             self.__hdu[self.extension].data[select_wave,y,x] = spec
 
-        pool = Pool(max_cpu)
+        pool = Pool()
         (y,x) = numpy.indices((self.__dim[1:]))
         x_cor = x.flatten()
         y_cor = y.flatten()
+        print(x_cor,y_cor)
         results = []
         for i in range(len(y_cor)):
+            print(i)
             pool.apply_async(process,(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]),callback=callback_spec)
 
         #for x in range(self.__dim[2]):
