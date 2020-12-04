@@ -47,7 +47,7 @@ class WAVEmask:
                 else:
                     break
         else:
-            wave_start = [5565,5875, 6290, 6350, 6450, 6800, 7220, 8250, 8740]
+            wave_start = [5565 ,5875, 6290, 6350, 6450, 6800, 7220, 8250, 8740]
             wave_end =[5585, 5905, 6310, 6370, 6610, 7020, 8160, 8680, 9180]
 
         self.__wave_start = numpy.array(wave_start)
@@ -56,7 +56,7 @@ class WAVEmask:
     def mask(self, wave):
         wave_mask = numpy.zeros(len(wave),dtype='bool')
         for i in range(len(self.__wave_start)):
-            wave_mask = wave_mask | ((self.__wave_start[i]>=wave) & (self.__wave_end[i]<=wave))
+            wave_mask = wave_mask | ((wave>=self.__wave_start[i]) & (wave<=self.__wave_end[i]))
         return wave_mask
 
 
