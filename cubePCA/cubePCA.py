@@ -76,7 +76,7 @@ class IFUCube:
         self.__hdu.writeto(fileout,overwrite=True)
 
     def getNANMask(self,min_slice=5, max_slice=20):
-        self.__badmask = numpy.sum(numpy.isnan(cself.__hdu[self.extension].data[5:20,:,:]),0)>0.0
+        self.__badmask = numpy.sum(numpy.isnan(self.__hdu[self.extension].data[5:20,:,:]),0)>0.0
 
     def getWave(self):
         try:
