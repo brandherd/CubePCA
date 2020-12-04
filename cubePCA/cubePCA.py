@@ -118,7 +118,7 @@ class IFUCube:
     def subtract_PCA_sky(self, PCA_sky, cont_filt=50, components=100, file_wavemask='', verbose=True):
         pca_specs = PCA_sky[:components, :] * 10000.0
         wave_mask = WAVEmask(file_wavemask)
-
+        self.replaceNAN()
         select_wave = wave_mask.mask(self.getWave())
         max_it = self.__dim[2]*self.__dim[1]
 
@@ -127,13 +127,10 @@ class IFUCube:
         for x in range(self.__dim[2]):
             for y in range(self.__dim[1]):
                 spec = self.__hdu[self.extension].data[:,y,x]
-                nan = numpy.isnan(spec)
-                spec[nan] = 0
-                select = select_wave
                 smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
-                out=numpy.linalg.lstsq(pca_specs[:,select].T,(spec-smooth_spec)[select])
-                spec_sky = numpy.dot(pca_specs[:, select].T, out[0])
-                self.__hdu[self.extension].data[select,y,x] = spec[select]-spec_sky
+                out=numpy.linalg.lstsq(pca_specs[:,select_wave].T,(spec-smooth_spec)[select_wave])
+                spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
+                self.__hdu[self.extension].data[select_wave,y,x] = spec[select_wave]-spec_sky
                 m +=1
                 if (m%100==0 or m== max_it-1) and verbose:
                     show_progress_bar(bar_length, m, max_it)
