@@ -78,6 +78,10 @@ class IFUCube:
     def getNANMask(self,min_slice=5, max_slice=20):
         self.__badmask = numpy.sum(numpy.isnan(self.__hdu[self.extension].data[5:20,:,:]),0)>0.0
 
+    def replaceNAN(self,value=0.0):
+        select_nan = numpy.isnan(self.__hdu[self.extension].data)
+        self.__hdu[self.extension].data[select_nan] = value
+
     def getWave(self):
         try:
             crpix = self.__header['CRPIX3']
@@ -100,6 +104,7 @@ class IFUCube:
         indices_y = indices_y[indices]
         indices_x = indices_x[indices]
         smax = numpy.min([spectra, len(indices_x)])
+        self.replaceNAN()
         sky = self.subRSS(indices_x[:smax],indices_y[:smax]).T
         sky_smooth = ndimage.filters.median_filter(sky,(1,cont_filt))
         sky = sky - sky_smooth
