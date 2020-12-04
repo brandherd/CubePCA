@@ -130,12 +130,7 @@ class IFUCube:
                 nan = numpy.isnan(spec)
                 spec[nan] = 0
                 select = select_wave
-                print(numpy.sum(select))
-                print((pca_specs[:,select].T))
-                print (spec[select])
-                print(cont_filt)
                 smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
-                print(smooth_spec)
                 out=numpy.linalg.lstsq(pca_specs[:,select].T,(spec-smooth_spec)[select])
                 spec_sky = numpy.dot(pca_specs[:, select].T, out[0])
                 self.__hdu[self.extension].data[select,y,x] = spec[select]-spec_sky
