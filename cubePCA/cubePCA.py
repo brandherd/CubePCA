@@ -133,7 +133,7 @@ class IFUCube:
             print (x,y)
             return out_spec, x, y
 
-        def callback_spec(self,result):
+        def callback_spec(result):
             (spec,x,y) = result
             print(x,y)
             self.__hdu[self.extension].data[select_wave,y,x] = spec
