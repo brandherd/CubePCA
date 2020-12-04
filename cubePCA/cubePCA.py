@@ -76,7 +76,7 @@ class IFUCube:
         self.__hdu.writeto(fileout,overwrite=True)
 
     def getNANMask(self,min_slice=5, max_slice=20):
-        self.__badmask = self.__hdu[self.__extension].data[min_slice:max_slice, :, :]
+        self.__badmask = self.__hdu[self.extension].data[min_slice:max_slice, :, :]
 
     def getWave(self):
         try:

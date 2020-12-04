@@ -19,11 +19,11 @@ def main():
     args = parser.parse_args()
     if args.verbose:
         print('Opening data cube {} for processing '.format(args.input_cube))
-    cube = IFUCube(args.input_cube,extension=args.extension)
+    cube = cubePCA.IFUCube(args.input_cube,extension=args.extension)
 
     if args.verbose:
         print('Opening sky mask {} for processing '.format(args.sky_mask))
-    mask = MASKimg(args.sky_mask)
+    mask = cubePCA.MASKimg(args.sky_mask)
     cube.getNANMask()
 
     if args.verbose:
