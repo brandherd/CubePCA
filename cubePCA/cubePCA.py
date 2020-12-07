@@ -1,8 +1,9 @@
 from astropy.io import fits as pyfits
 import math
 import numpy
+from tqdm import tqdm
 from scipy import ndimage
-from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
 
 def show_progress_bar(bar_length, completed, total):
     bar_length_unit_value = (total / bar_length)
@@ -59,6 +60,23 @@ class WAVEmask:
             wave_mask = wave_mask | ((wave>=self.__wave_start[i]) & (wave<=self.__wave_end[i]))
         return wave_mask
 
+def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y, pbar):
+    smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
+    out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=None)
+    spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
+    out_spec = spec[select_wave] - spec_sky
+    if pbar is not None:
+        pbar.update()
+    return out_spec, x, y
+
+# def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y):
+#     smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
+#     out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=None)
+#     spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
+#     out_spec = spec[select_wave] - spec_sky
+#     print(x, y)
+#     #pbar.update()
+#     return out_spec, x, y
 
 class IFUCube:
     def __init__(self, filename, extension=0):
@@ -96,7 +114,7 @@ class IFUCube:
         return wave
 
 
-    def create_PCA_sky(self, sky_mask, cont_filt=50, spectra=20000, parallel='auto'):
+    def create_PCA_sky(self, sky_mask, cont_filt=50, spectra=20000):
         (indices_y,indices_x)= sky_mask.masked(nan_mask = self.__badmask)
         indices = numpy.arange(len(indices_x))
         numpy.random.shuffle(indices)
@@ -111,51 +129,33 @@ class IFUCube:
         e, EV = numpy.linalg.eigh(M)
         tmp = numpy.dot(sky.T, EV).T
         PCA_out = tmp[::-1]
-
+        PCA_out = PCA_out[:self.__dim[0],:]
         return PCA_out,sky
 
-    def subtract_PCA_sky(self, PCA_sky, cont_filt=50, components=100, file_wavemask='', max_cpu=10, verbose=True):
+    def subtract_PCA_sky(self, PCA_sky, cont_filt=50, components=100, file_wavemask='', max_cpu='auto', verbose=True):
         pca_specs = PCA_sky[:components, :]
         wave_mask = WAVEmask(file_wavemask)
         self.replaceNAN()
         select_wave = wave_mask.mask(self.getWave())
-        max_it = self.__dim[2]*self.__dim[1]
 
-        bar_length = 30
-        m=0
-
-        def process(spec,pca_specs,cont_filt,select_wave,x,y):
-            smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
-            out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave])
-            spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
-            out_spec = spec[select_wave] - spec_sky
-            print (x,y)
-            return out_spec, x, y
-
-        def callback_spec(result):
-            (spec,x,y) = result
-            self.__hdu[self.extension].data[select_wave,y,x] = spec
-
-        pool = Pool( )
+        if max_cpu=='auto':
+            pool = ThreadPool()
+        else:
+            pool = ThreadPool(int(max_cpu))
         (y,x) = numpy.indices((self.__dim[1:]))
         x_cor = x.flatten()
         y_cor = y.flatten()
         results = []
+        if verbose:
+            pbar = tqdm(total=len(x_cor))
+        else:
+            pbar = None
         for i in range(len(y_cor)):
             spec = self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]]
-            out = pool.apply_async(process,args=(spec,pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]))
-            #out = process(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i])
-            #callback_spec(out)
-        #for x in range(self.__dim[2]):
-        #    for y in range(self.__dim[1]):
-        #        spec = self.__hdu[self.extension].data[:,y,x]
-        #        smooth_spec=ndimage.filters.median_filter(spec,(cont_filt))
-        #        out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave])
-        #        spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
-        #        self.__hdu[self.extension].data[select_wave,y,x] = spec[select_wave]-spec_sky
-        #        m +=1
-        #        if (m%100==0 or m== max_it-1) and verbose:
-        #            show_progress_bar(bar_length, m, max_it)
+            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i],pbar))
+            results.append(out)
+        for i in range(len(results)):
+            (spec,x,y) = results[i].get()
+            self.__hdu[self.extension].data[select_wave,y,x] = spec
         pool.close()
         pool.join()
-        #print('\n')

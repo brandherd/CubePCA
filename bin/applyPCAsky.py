@@ -11,9 +11,10 @@ def main():
     parser.add_argument('output_cube', metavar='CUBE_OUT', type=str, help='Output FITS datacube with sky residuals subtracted')
     parser.add_argument('PCA_in', metavar='PCA_in', type=str, help='Output FITS file with PCA component spectra')
     parser.add_argument('-m', '--wave_mask', type=str, default='',help='File name of the wavelength selection for the PCA subtraction. If not given a default wavelength set is being used. An example is given in the wave.txt file.')
-    parser.add_argument('-e', '--extension', type=int, default=1, help='extension in which the data should be taken from')
-    parser.add_argument('-c', '--components', type=int, default=100, help='Number of PCA components to be used')
-    parser.add_argument('-f', '--filter_width', type=int, default=50, help='Size of median filter in wavelength direction to remove continuum signal before sky residual subtraction')
+    parser.add_argument('-e', '--extension', type=int, default=1, help='extension in which the data should be taken from (Default: 1')
+    parser.add_argument('-c', '--components', type=int, default=20, help='Number of PCA components to be used (Default: 20)')
+    parser.add_argument('-f', '--filter_width', type=int, default=50, help='Size of median filter in wavelength direction to remove continuum signal before sky residual subtraction (Default: 50)')
+    parser.add_argument('-t', '--threads', type=str, default='auto',help='number of threads to be used for multiprocessing, auto for maximum otherwise put number (Default: auto)')
     parser.add_argument('--verbose', action='store_true', help='Set if infos are printed to the command line')
 
     args = parser.parse_args()
@@ -28,7 +29,7 @@ def main():
 
     if args.verbose:
         print('Start subtracting sky line residuals.')
-    cube.subtract_PCA_sky(PCA, cont_filt=args.filter_width, components=args.components, file_wavemask= args.wave_mask, verbose=args.verbose)
+    cube.subtract_PCA_sky(PCA, cont_filt=args.filter_width, components=args.components, file_wavemask= args.wave_mask, max_cpu=args.threads, verbose=args.verbose)
 
     if args.verbose:
         print('Store cleaned cube at {}.'.format(args.output_cube))
