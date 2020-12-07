@@ -62,7 +62,7 @@ class WAVEmask:
 
 def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y, pbar):
     smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
-    out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=None)
+    out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=-1)
     spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
     out_spec = spec[select_wave] - spec_sky
     if pbar is not None:
