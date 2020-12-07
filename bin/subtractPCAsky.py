@@ -3,6 +3,7 @@
 import argparse
 import cubePCA
 from astropy.io import fits as pyfits
+from tqdm import tqdm
 
 def main():
     parser = argparse.ArgumentParser(description="Script to subtract sky residuals from a datacube by creating a PCA spectral library")
@@ -44,5 +45,4 @@ def main():
 
     if args.verbose:
         print('Done')
-
 main()
