@@ -2,7 +2,7 @@ from astropy.io import fits as pyfits
 import math
 import numpy
 from scipy import ndimage
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
 
 def show_progress_bar(bar_length, completed, total):
@@ -60,7 +60,7 @@ class WAVEmask:
             wave_mask = wave_mask | ((wave>=self.__wave_start[i]) & (wave<=self.__wave_end[i]))
         return wave_mask
 
-def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i, pbar):
+def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i):
     dim = cube.shape
     for x in range(dim[2]):
         for y in range(dim[1]):
@@ -69,8 +69,6 @@ def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i, pbar):
             out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=-1)
             spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
             cube[select_wave,y,x] = spec[select_wave] - spec_sky
-            if pbar is not None:
-                pbar.update()
     return cube, i
 
 # def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y):
@@ -150,14 +148,14 @@ class IFUCube:
             cpus = int(max_cpu)
         sub_indices = numpy.array_split(numpy.arange(self.__dim[1]), cpus)
 
-        pool = ThreadPool(cpus)
+        pool = Pool(cpus)
         results = []
         for i in range(cpus):
             spec = self.__hdu[self.extension].data[:,sub_indices[i],:]
-            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i,pbar))
+            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i))
             results.append(out)
         for i in range(len(results)):
             (cube,i) = results[i].get()
-            self.__hdu[self.extension].data[select_wave,sub_indices[i],:] = cube
+            self.__hdu[self.extension].data[:,sub_indices[i],:] = cube
         pool.close()
         pool.join()
