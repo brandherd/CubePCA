@@ -97,7 +97,6 @@ class IFUCube:
 
 
     def create_PCA_sky(self, sky_mask, cont_filt=50, spectra=20000, parallel='auto'):
-
         (indices_y,indices_x)= sky_mask.masked(nan_mask = self.__badmask)
         indices = numpy.arange(len(indices_x))
         numpy.random.shuffle(indices)
@@ -137,15 +136,14 @@ class IFUCube:
             (spec,x,y) = result
             self.__hdu[self.extension].data[select_wave,y,x] = spec
 
-        pool = Pool()
+        pool = Pool( )
         (y,x) = numpy.indices((self.__dim[1:]))
         x_cor = x.flatten()
         y_cor = y.flatten()
-        print(x_cor,y_cor)
         results = []
         for i in range(len(y_cor)):
-            print(i)
-            out = pool.apply_async(process,args=(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]))
+            spec = self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]]
+            out = pool.apply_async(process,args=(spec,pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i]))
             #out = process(self.__hdu[self.extension].data[:,y_cor[i],x_cor[i]],pca_specs,cont_filt,select_wave,x_cor[i],y_cor[i])
             #callback_spec(out)
         #for x in range(self.__dim[2]):
