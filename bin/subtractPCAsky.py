@@ -33,7 +33,10 @@ def main():
 
     if args.verbose:
         print('Start subtracting sky line residuals.')
-    cube.subtract_PCA_sky(PCA_out, cont_filt=args.filter_width, components=args.components, file_wavemask= args.wave_mask, max_cpu=args.threads, verbose=args.verbose)
+        pbar = tqdm(total=cube.getSpax())
+    else:
+        pbar = None
+    cube.subtract_PCA_sky(PCA_out, cont_filt=args.filter_width, components=args.components, file_wavemask= args.wave_mask, max_cpu=args.threads, pbar=pbar, verbose=args.verbose)
 
     if args.verbose:
         print('Store cleaned cube at {}.'.format(args.output_cube))
