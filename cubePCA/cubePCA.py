@@ -69,7 +69,7 @@ def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i,  count, lock):
     for x in range(dim[2]):
         for y in range(dim[1]):
             spec = cube[:,y,x]
-            if numpy.sum(spec)!=0.0
+            if numpy.sum(spec)!=0.0:
                 smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
                 out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=-1)
                 spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
