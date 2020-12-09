@@ -162,7 +162,7 @@ class IFUCube:
             spec = self.__hdu[self.extension].data[:,sub_indices[i],:]
             out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i, count, lock))
             results.append(out)
-        while count.value < self.getSpax()
+        while count.value < self.getSpax():
             print (count.value)
         #if pbar is not None:
         #    while count.value < self.getSpax():
