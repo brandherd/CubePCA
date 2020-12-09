@@ -73,8 +73,8 @@ def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i,  count, lock):
             out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=-1)
             spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
             cube[select_wave,y,x] = spec[select_wave] - spec_sky
-            with lock:
-                count.value +=1
+        with lock:
+            count.value += dim[1]
     return cube, i
 
 # def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y):
