@@ -162,7 +162,7 @@ class IFUCube:
             out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i,count))
             results.append(out)
 
-        while count < self.getSpax():
+        while count.value < self.getSpax():
             pbar.reset(count)
         for i in range(len(results)):
             (cube,i) = results[i].get()
