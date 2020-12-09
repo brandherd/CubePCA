@@ -153,8 +153,9 @@ class IFUCube:
             cpus = int(max_cpu)
         sub_indices = numpy.array_split(numpy.arange(self.__dim[1]), cpus)
 
-        count = multiprocessing.Manager().Value('i',  0)
-        lock = multiprocessing.Manager().Lock()
+        count = multiprocessing.Value('i',  0)
+        lock = multiprocessing.Lock()
+
         pool = Pool(cpus)
         results = []
         for i in range(cpus):
@@ -163,7 +164,7 @@ class IFUCube:
             results.append(out)
 
         while count.value < self.getSpax():
-            pbar.reset(count)
+            pbar.reset(count.value)
         for i in range(len(results)):
             (cube,i) = results[i].get()
             self.__hdu[self.extension].data[:,sub_indices[i],:] = cube
