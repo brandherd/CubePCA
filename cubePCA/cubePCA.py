@@ -5,6 +5,7 @@ from scipy import ndimage
 from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
 import multiprocessing, ctypes
+import time
 
 
 def show_progress_bar(bar_length, completed, total):
@@ -162,11 +163,12 @@ class IFUCube:
             spec = self.__hdu[self.extension].data[:,sub_indices[i],:]
             out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i, count, lock))
             results.append(out)
-        while count.value < self.getSpax():
-            print (count.value)
-        #if pbar is not None:
-        #    while count.value < self.getSpax():
-        #        pbar.update(count.value - pbar.n)
+        #while count.value < self.getSpax():
+        #    print (count.value)
+        if pbar is not None:
+            while count.value < self.getSpax():
+                pbar.update(count.value - pbar.n)
+                time.sleep(0.1)
 
         for i in range(len(results)):
             (cube,i) = results[i].get()
