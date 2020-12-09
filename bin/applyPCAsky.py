@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import sys
 import argparse
 import cubePCA
 from astropy.io import fits as pyfits
