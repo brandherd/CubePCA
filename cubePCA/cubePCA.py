@@ -153,8 +153,8 @@ class IFUCube:
             cpus = int(max_cpu)
         sub_indices = numpy.array_split(numpy.arange(self.__dim[1]), cpus)
 
-        count = multiprocessing.Value('i',  0)
-        lock = multiprocessing.Lock()
+        count = multiprocessing.Manager().Value('i',  0)
+        lock = multiprocessing.Manager().Lock()
 
         pool = Pool(cpus)
         results = []
@@ -163,8 +163,10 @@ class IFUCube:
             out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i,count))
             results.append(out)
 
-        while count.value < self.getSpax():
-            pbar.reset(count.value)
+        if pbar is not None:
+            while count.value < self.getSpax():
+                pbar.reset(count.value)
+
         for i in range(len(results)):
             (cube,i) = results[i].get()
             self.__hdu[self.extension].data[:,sub_indices[i],:] = cube
