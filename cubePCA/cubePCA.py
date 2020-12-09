@@ -168,7 +168,7 @@ class IFUCube:
         if pbar is not None:
             while count.value < self.getSpax():
                 pbar.update(count.value - pbar.n)
-                time.sleep(0.1)
+                time.sleep(0.6)
 
         for i in range(len(results)):
             (cube,i) = results[i].get()
