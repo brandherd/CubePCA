@@ -37,4 +37,5 @@ def main():
     hdu = pyfits.PrimaryHDU(PCA_out)
     hdu.writeto(args.PCA_out,overwrite=True)
 
-main()
+if __name__ == '__main__':
+    main()

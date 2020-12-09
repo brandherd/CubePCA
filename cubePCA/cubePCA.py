@@ -2,8 +2,10 @@ from astropy.io import fits as pyfits
 import math
 import numpy
 from scipy import ndimage
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import Pool
 from multiprocessing import cpu_count
+import multiprocessing, ctypes
+
 
 def show_progress_bar(bar_length, completed, total):
     bar_length_unit_value = (total / bar_length)
@@ -62,6 +64,7 @@ class WAVEmask:
 
 def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i, pbar):
     dim = cube.shape
+    global count, lock
     for x in range(dim[2]):
         for y in range(dim[1]):
             spec = cube[:,y,x]
@@ -69,8 +72,8 @@ def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i, pbar):
             out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=-1)
             spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
             cube[select_wave,y,x] = spec[select_wave] - spec_sky
-            if pbar is not None:
-                pbar.update()
+            with lock:
+                count.value +=1
     return cube, i
 
 # def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y):
@@ -150,12 +153,17 @@ class IFUCube:
             cpus = int(max_cpu)
         sub_indices = numpy.array_split(numpy.arange(self.__dim[1]), cpus)
 
-        pool = ThreadPool(cpus)
+        count = multiprocessing.Manager().Value('i',  0)
+        lock = multiprocessing.Manager().Lock()
+        pool = Pool(cpus)
         results = []
         for i in range(cpus):
             spec = self.__hdu[self.extension].data[:,sub_indices[i],:]
-            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i,pbar))
+            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i,count))
             results.append(out)
+
+        while count < self.getSpax():
+            pbar.reset(count)
         for i in range(len(results)):
             (cube,i) = results[i].get()
             self.__hdu[self.extension].data[:,sub_indices[i],:] = cube

@@ -15,7 +15,7 @@ def main():
     parser.add_argument('-c', '--components', type=int, default=100, help='Number of PCA components to be used')
     parser.add_argument('-s', '--spectra', type=int, default=20000, help='Maximum random subset of spectra used for PCA analysis if number of selected spectra are larger than this number')
     parser.add_argument('-f', '--filter_width', type=int, default=50, help='Size of median filter in wavelength direction to remove continuum signal before sky residual subtraction')
-    parser.add_argument('-t', '--threads', type=str, default='auto', help='number of threads to be used for multiprocessing, auto for maximum otherwise put number (Default: auto)')
+    parser.add_argument('-p', '--processes', type=str, default='auto', help='number of processes to be used for multiprocessing, auto for maximum otherwise put number (Default: auto)')
     parser.add_argument('--verbose', action='store_true', help='Set if infos are printed to the command line')
 
     args = parser.parse_args()
@@ -37,7 +37,7 @@ def main():
         pbar = tqdm(total=cube.getSpax())
     else:
         pbar = None
-    cube.subtract_PCA_sky(PCA_out, cont_filt=args.filter_width, components=args.components, file_wavemask= args.wave_mask, max_cpu=args.threads, pbar=pbar, verbose=args.verbose)
+    cube.subtract_PCA_sky(PCA_out, cont_filt=args.filter_width, components=args.components, file_wavemask= args.wave_mask, max_cpu=args.processes, pbar=pbar, verbose=args.verbose)
 
     if args.verbose:
         print('Store cleaned cube at {}.'.format(args.output_cube))
@@ -45,4 +45,6 @@ def main():
 
     if args.verbose:
         print('Done')
-main()
+
+if __name__ == '__main__':
+    main()
