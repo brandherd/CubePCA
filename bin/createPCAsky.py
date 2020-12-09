@@ -12,11 +12,11 @@ def main():
                         help='Output FITS file with PCA component spectra')
     parser.add_argument('sky_mask', metavar='MASK', type=str, help='sky region mask')
     parser.add_argument('-e', '--extension', type=int, default=1,
-                        help='extension in which the data should be taken from')
+                        help='extension in which the data should be taken from (Default: 1)')
     parser.add_argument('-s', '--spectra', type=int, default=20000,
-                        help='Maximum random subset of spectra used for PCA analysis if number of selected spectra are larger than this number')
+                        help='Maximum random subset of spectra used for PCA analysis if number of selected spectra are larger than this number (Default: 20000)')
     parser.add_argument('-f', '--filter_width', type=int, default=50,
-                        help='Size of median filter in wavelength direction to remove continuum signal before sky residual subtraction')
+                        help='Size of median filter in wavelength direction to remove continuum signal before sky residual subtraction (Default: 50)')
     parser.add_argument('--verbose', action='store_true', help='Set if infos are printed to the command line')
 
     args = parser.parse_args()
