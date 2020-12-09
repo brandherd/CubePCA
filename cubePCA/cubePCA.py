@@ -62,7 +62,7 @@ class WAVEmask:
             wave_mask = wave_mask | ((wave>=self.__wave_start[i]) & (wave<=self.__wave_end[i]))
         return wave_mask
 
-def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i, pbar, count, lock):
+def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i,  count, lock):
     dim = cube.shape
 
     for x in range(dim[2]):
@@ -160,7 +160,7 @@ class IFUCube:
         results = []
         for i in range(cpus):
             spec = self.__hdu[self.extension].data[:,sub_indices[i],:]
-            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i,count, lock))
+            out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i, count, lock))
             results.append(out)
 
         for i in range(len(results)):
