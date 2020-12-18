@@ -7,6 +7,15 @@ from multiprocessing import cpu_count
 import multiprocessing, ctypes
 import time
 
+__author__ = "Bernd Husemann"
+__copyright__ = "Copyright 2020, Bernd Husemann"
+__license__ = "MIT"
+__version__ = "1.0"
+__maintainer__ = "Bernd Husemann"
+__email__ = "berndhusemannQgmx.de"
+__status__ = "Production"
+
+
 
 def show_progress_bar(bar_length, completed, total):
     bar_length_unit_value = (total / bar_length)
