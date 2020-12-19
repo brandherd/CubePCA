@@ -12,7 +12,7 @@ __copyright__ = "Copyright 2020, Bernd Husemann"
 __license__ = "MIT"
 __version__ = "1.0"
 __maintainer__ = "Bernd Husemann"
-__email__ = "berndhusemannQgmx.de"
+__email__ = "berndhusemann@gmx.de"
 __status__ = "Production"
 
 
@@ -87,15 +87,6 @@ def remove_PCAsky(cube, pca_specs, cont_filt, select_wave, i,  count, lock):
             count.value += dim[1]
     return cube, i
 
-# def remove_PCAsky(spec, pca_specs, cont_filt, select_wave, x, y):
-#     smooth_spec = ndimage.filters.median_filter(spec, (cont_filt))
-#     out = numpy.linalg.lstsq(pca_specs[:, select_wave].T, (spec - smooth_spec)[select_wave], rcond=None)
-#     spec_sky = numpy.dot(pca_specs[:, select_wave].T, out[0])
-#     out_spec = spec[select_wave] - spec_sky
-#     print(x, y)
-#     #pbar.update()
-#     return out_spec, x, y
-
 class IFUCube:
     def __init__(self, filename, extension=0):
         self.__hdu = pyfits.open(filename)
@@ -122,15 +113,20 @@ class IFUCube:
         self.__hdu[self.extension].data[select_nan] = value
 
     def getWave(self):
-        try:
+        keys = list(self.__header.keys())
+        if 'CRPIX3' in keys:
             crpix = self.__header['CRPIX3']
-        except KeyError:
-            crpix = 1
-        crval = self.__header['CRVAL3']
-        try:
-            cdelt = self.__header['CD3_3']
-        except KeyError:
-            cdelt = self.__header['CDELT3']
+        else:
+            crpix =1
+
+        if 'CRVAL3' in keys and ('CDELT3' in keys or 'CD3_3' in keys):
+            crval = self.__header['CRVAL3']
+            if 'CDELT3' in keys:
+                cdelt = self.__header['CDELT3']
+            else:
+                 cdelt = self.__header['CD3_3']
+        else:
+            raise ImportError('Wrong wavelength information in FITS header of extension %d. Please make sure that CRVAL3 and CDELT3 or CD3_3 exists. CRPIX3 is set to 1 if missing.'%(self.extension))
         wave = (numpy.arange(self.__dim[0])-(crpix-1))*cdelt+crval
         return wave
 
@@ -173,12 +169,11 @@ class IFUCube:
             spec = self.__hdu[self.extension].data[:,sub_indices[i],:]
             out = pool.apply_async(remove_PCAsky,args=(spec,pca_specs,cont_filt,select_wave,i, count, lock))
             results.append(out)
-        #while count.value < self.getSpax():
-        #    print (count.value)
+
         if pbar is not None:
             while count.value < self.getSpax():
                 pbar.update(count.value - pbar.n)
-                time.sleep(0.6)
+
 
         for i in range(len(results)):
             (cube,i) = results[i].get()

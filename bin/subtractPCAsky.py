@@ -5,8 +5,17 @@ import cubePCA
 from astropy.io import fits as pyfits
 from tqdm import tqdm
 
+__author__ = "Bernd Husemann"
+__copyright__ = "Copyright 2020, Bernd Husemann"
+__license__ = "MIT"
+__version__ = "1.0"
+__maintainer__ = "Bernd Husemann"
+__email__ = "berndhusemann@gmx.de"
+__status__ = "Production"
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Script to subtract sky residuals from a datacube by creating a PCA spectral library")
+    parser = argparse.ArgumentParser(description="Script to subtract sky residuals from a data cube by creating a PCA spectral library")
     parser.add_argument('input_cube', metavar='CUBE_IN', type=str,  help='Input FITS datacube from which sky spectra are selected')
     parser.add_argument('output_cube', metavar='CUBE_OUT', type=str, help='Output FITS datacube with sky residuals subtracted')
     parser.add_argument('sky_mask', metavar='MASK', type=str, help='sky region mask')

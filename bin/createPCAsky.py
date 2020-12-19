@@ -4,8 +4,17 @@ import argparse
 import cubePCA
 from astropy.io import fits as pyfits
 
+__author__ = "Bernd Husemann"
+__copyright__ = "Copyright 2020, Bernd Husemann"
+__license__ = "MIT"
+__version__ = "1.0"
+__maintainer__ = "Bernd Husemann"
+__email__ = "berndhusemann@gmx.de"
+__status__ = "Production"
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Script to create a PCA library of spectra from an datacube given a mask")
+    parser = argparse.ArgumentParser(description="Script to create a PCA library of spectra from a data cube and a provided mask file.")
     parser.add_argument('input_cube', metavar='CUBE_IN', type=str,
                         help='Input FITS datacube from which sky spectra are selected')
     parser.add_argument('PCA_out', metavar='PCA_OUT', type=str,
