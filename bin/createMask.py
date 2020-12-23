@@ -10,6 +10,7 @@ __author__ = "Bernd Husemann"
 __copyright__ = "Copyright 2020, Bernd Husemann"
 __license__ = "MIT"
 __version__ = "1.0"
+__contributors__ = ["Sebastian Kamann","Bernd Husemann"]
 __maintainer__ = "Bernd Husemann"
 __email__ = "berndhusemann@gmx.de"
 __status__ = "Production"
